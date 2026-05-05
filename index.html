@@ -4,20 +4,33 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Abfahrten — Wollishofen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
   :root {
-    --bg: #07090c;
-    --panel: #0e1116;
-    --panel-2: #161a21;
-    --line: #1f242c;
-    --header-bg: #0079c2;   /* ZVV-Blau */
-    --header-bg-2: #00568a;
-    --text: #ffffff;
-    --text-dim: #8a93a0;
-    --text-mid: #c4c9d2;
-    --accent: #ffcc00;
-    --warn: #ff4d4d;
-    --ok: #58d672;
+    /* Hellgraues Theme */
+    --bg: #e9ecef;
+    --panel: #ffffff;
+    --panel-2: #f5f7f9;
+    --line: #dee2e6;
+    --line-strong: #ced4da;
+
+    /* VBZ-Blau (offiziell #07A1E2) */
+    --vbz-blue: #07A1E2;
+    --vbz-blue-dark: #0584b8;
+    --vbz-blue-darker: #035c80;
+    --vbz-blue-darkest: #003c53;
+
+    /* Texte */
+    --text: #1a1d20;
+    --text-mid: #495057;
+    --text-dim: #6c757d;
+
+    /* Status */
+    --warn: #d32f2f;        /* Verspätung / stale */
+    --ok: #2e7d32;          /* "jetzt" */
+    --soon: #ef6c00;        /* nächste 5 Min */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,82 +38,95 @@
   html, body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    font-family: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variant-numeric: tabular-nums;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
+  /* ---------- Header (VBZ-Blau) ---------- */
   header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(180deg, var(--header-bg) 0%, var(--header-bg-2) 100%);
+    background: var(--panel);
     padding: 14px 22px;
-    border-bottom: 3px solid #002e4d;
-    box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--panel-2);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
   }
   .brand { display: flex; align-items: baseline; gap: 14px; }
   .brand .pin {
     display: inline-block;
     width: 6px; height: 26px;
-    background: var(--accent);
+    background: var(--vbz-blue);
     border-radius: 1px;
     transform: translateY(4px);
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+    opacity: 0.95;
   }
   .station {
     font-size: 22px; font-weight: 700; letter-spacing: 0.3px;
-    color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+    color: var(--text);
   }
   .sub {
-    color: rgba(255,255,255,0.7);
+    color: var(--text-mid);
     font-size: 12px; text-transform: uppercase;
     letter-spacing: 2px; margin-left: 4px;
   }
   .clock {
     font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
     font-variant-numeric: tabular-nums;
-    font-size: 24px; font-weight: 500;
-    color: #fff; letter-spacing: 1px;
-    text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+    font-size: 32px; font-weight: 700;
+    color: var(--text); letter-spacing: 1px;
   }
 
   /* ---------- Block ---------- */
+  main {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
   .block {
     background: var(--panel);
-    border-bottom: 1px solid #000;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     transition: opacity 0.4s, filter 0.4s;
   }
-  .block + .block { border-top: 3px solid var(--header-bg-2); }
   .block-head {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 18px;
-    background: linear-gradient(180deg, #1a2030 0%, #131720 100%);
+    padding: 11px 16px;
+    background: var(--vbz-blue);
     border-bottom: 1px solid var(--line);
   }
   .block-title {
-    font-size: 16px; font-weight: 700; letter-spacing: 0.4px;
-    color: #fff; display: flex; align-items: center; gap: 10px;
+    font-size: 20px; font-weight: 700; letter-spacing: 0.2px;
+    color: var(--panel);
+    display: flex; align-items: center; gap: 10px;
   }
   .block-title::before {
-    content: ''; width: 4px; height: 16px;
-    background: var(--accent); border-radius: 1px; display: inline-block;
+    content: ''; width: 4px; height: 22px;
+    background: var(--panel-2);
+    border-radius: 1px; display: inline-block;
   }
   .block-meta {
-    color: var(--text-dim); font-size: 11px;
-    text-transform: uppercase; letter-spacing: 1.6px;
+    color: var(--text); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1.4px;
+    font-weight: 600;
   }
-  .block.is-stale .block-content {
-    opacity: 0.5; filter: saturate(0.5);
-  }
+  .block.is-stale .block-content { opacity: 0.5; filter: saturate(0.4); }
   .block.is-stale .block-meta { color: var(--warn); }
 
   /* ---------- Grid 2 Richtungen ---------- */
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1px; background: #000;
+    gap: 1px;
+    background: var(--line);
   }
   @media (max-width: 760px) {
     .grid { grid-template-columns: 1fr; }
@@ -110,56 +136,63 @@
   .dir-head {
     display: flex; align-items: center; gap: 10px;
     background: var(--panel-2);
-    padding: 10px 16px;
+    padding: 9px 14px;
     border-bottom: 1px solid var(--line);
   }
-  .dir-head .arrow { color: var(--accent); font-size: 16px; line-height: 1; }
+  .dir-head .arrow {
+    color: var(--vbz-blue);
+    font-size: 16px; line-height: 1;
+    font-weight: 700;
+  }
   .dir-head .label {
     color: var(--text-dim); font-size: 10px;
-    letter-spacing: 1.6px; text-transform: uppercase;
+    letter-spacing: 1.4px; text-transform: uppercase;
+    font-weight: 600;
   }
   .dir-head .name {
-    color: var(--text); font-size: 14px; font-weight: 700; margin-left: 2px;
+    color: var(--text); font-size: 14px;
+    font-weight: 700; margin-left: 2px;
   }
 
   table { width: 100%; border-collapse: collapse; table-layout: fixed; }
   td {
-    padding: 11px 12px;
-    border-bottom: 1px solid #141821;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
     vertical-align: middle;
   }
   tr:last-child td { border-bottom: none; }
 
-  .col-line { width: 70px; }
+  .col-line { width: 76px; }
   .col-time { width: 88px; text-align: right; }
   .col-cd   { width: 56px; text-align: right; }
 
+  /* ---------- Linien-Badge (Farben kommen per inline-style) ---------- */
   .badge {
     display: inline-flex; align-items: center; justify-content: center;
-    min-width: 50px; padding: 5px 8px; border-radius: 3px;
+    min-width: 54px; padding: 4px 8px;
+    border-radius: 3px;
     font-weight: 700; font-size: 13px;
-    background: #ffffff; color: #000;
     letter-spacing: 0.3px; white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
   }
-  .b-bus   { background: #0079c2; color: #fff; }
-  .b-tram  { background: #ffffff; color: #000; }
-  .b-s     { background: #009b3a; color: #fff; }
-  .b-ic    { background: #eb0000; color: #fff; }
-  .b-night { background: #1c1f4a; color: #fff; }
 
+  /* ---------- Ziel ---------- */
   .dest {
     font-size: 15px; font-weight: 600; color: var(--text);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .dest .meta {
     display: block; color: var(--text-dim);
-    font-size: 11px; font-weight: 400; margin-top: 2px; letter-spacing: 0.4px;
+    font-size: 11px; font-weight: 400;
+    margin-top: 2px; letter-spacing: 0.2px;
   }
 
+  /* ---------- Zeit / Countdown ---------- */
   .time {
     font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
     font-variant-numeric: tabular-nums;
-    font-size: 18px; color: var(--accent); font-weight: 500;
+    font-size: 18px; color: var(--text);
+    font-weight: 700;
   }
   .time.cancelled { color: var(--text-dim); text-decoration: line-through; }
   .delay {
@@ -173,18 +206,21 @@
     font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
   }
   .cd.now  { color: var(--ok); font-weight: 700; }
-  .cd.soon { color: var(--accent); font-weight: 700; }
+  .cd.soon { color: var(--soon); font-weight: 700; }
 
+  /* ---------- States ---------- */
   .empty, .error {
-    padding: 22px; text-align: center;
+    padding: 20px; text-align: center;
     color: var(--text-dim); font-size: 13px;
   }
-  .error { color: #ff8a8a; background: #1a0606; }
+  .error { color: var(--warn); background: #fdecec; }
 
   footer {
     padding: 10px 18px; text-align: center;
     color: var(--text-dim); font-size: 11px;
-    background: #050505; letter-spacing: 0.5px;
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+    letter-spacing: 0.4px;
     transition: background 0.4s, color 0.4s;
   }
 
@@ -195,10 +231,11 @@
   }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
+  /* Globaler Stale-Zustand */
   body.stale .pulse { background: var(--warn); animation: pulse 0.8s infinite; }
-  body.stale footer { background: #1a0606; color: #ff8a8a; }
-  body.stale .clock { color: #ffd0d0; }
-  body.stale header { border-bottom-color: var(--warn); }
+  body.stale footer { background: #fdecec; color: var(--warn); }
+  body.stale .clock { color: #ffe5e5; }
+  body.stale header { box-shadow: 0 0 0 3px var(--warn) inset; }
 </style>
 </head>
 <body>
@@ -229,10 +266,21 @@
     {
       id: 'rengger',
       title: 'Zürich, Renggerstrasse',
-      meta: 'Bus',
+      meta: 'Bus & Tram',
       station: 'Zürich, Renggerstrasse',
-      rows: 6
-      // default getDirection = nächster Halt nach unserer Station
+      rows: 6,
+      getDirection(dep) {
+        // Stadtwärts = Fahrt berührt oder endet an einem stadtnahen Knoten.
+        // - Bus: Bahnhof Wollishofen (auch "Bahnhof/Staubst" Variante)
+        // - Tram 7: via Bahnhof Enge / Stadelhofen Richtung Stettbach
+        const cityRe = /Wollishofen.*Bahnhof|Stettbach|Stadelhofen|Zürich HB|Bahnhof Enge/i;
+        const dest = dep.to || '';
+        const stops = dep.passList || [];
+        if (cityRe.test(dest)) return 'Stadtwärts';
+        if (stops.some(s => s.station && cityRe.test(s.station.name))) return 'Stadtwärts';
+        return 'Stadtauswärts';
+      },
+      directionOrder: ['Stadtwärts', 'Stadtauswärts']
     },
     {
       id: 'wollishofen',
@@ -240,7 +288,6 @@
       meta: 'SBB / S-Bahn',
       station: 'Zürich Wollishofen',
       rows: 6,
-      // S-Bahn Richtungen: über Zürich HB oder Richtung Süden (Thalwil)
       getDirection(dep) {
         const stops = dep.passList || [];
         if (stops.some(s => s.station && s.station.name === 'Zürich HB')) {
@@ -251,6 +298,101 @@
       directionOrder: ['Zürich HB', 'Thalwil / Süden']
     }
   ];
+
+  // ============================================================
+  //  VBZ-Tramlinien-Farben (gemäss VBZ-Liniennetz)
+  //  bg = Hintergrundfarbe, fg = Textfarbe
+  // ============================================================
+  const TRAM_COLORS = {
+    '2':  { bg: '#E2001A', fg: '#fff' },   // rot
+    '3':  { bg: '#00973A', fg: '#fff' },   // grün
+    '4':  { bg: '#1F3A6B', fg: '#fff' },   // dunkelblau
+    '5':  { bg: '#7F4F1F', fg: '#fff' },   // braun
+    '6':  { bg: '#A88260', fg: '#fff' },   // sand / hellbraun
+    '7':  { bg: '#000000', fg: '#fff' },   // schwarz
+    '8':  { bg: '#88B82E', fg: '#fff' },   // hellgrün / oliv
+    '9':  { bg: '#1F2A55', fg: '#fff' },   // marineblau
+    '10': { bg: '#D6006D', fg: '#fff' },   // magenta
+    '11': { bg: '#00873A', fg: '#fff' },   // grün
+    '13': { bg: '#FFD600', fg: '#000' },   // gelb (schwarzer Text!)
+    '14': { bg: '#26A8DD', fg: '#fff' },   // hellblau
+    '15': { bg: '#E2001A', fg: '#fff' },   // rot
+    '17': { bg: '#7B1638', fg: '#fff' }    // weinrot
+  };
+
+  // ============================================================
+  //  S-Bahn-Linien-Farben (gemäss Wikipedia / ZVV-Liniennetz)
+  //  https://de.wikipedia.org/wiki/S-Bahn_Z%C3%BCrich
+  // ============================================================
+  const S_COLORS = {
+    '2':  { bg: '#82BB22', fg: '#fff' },
+    '3':  { bg: '#0090D4', fg: '#fff' },
+    '4':  { bg: '#F08161', fg: '#fff' },
+    '5':  { bg: '#57B4CE', fg: '#fff' },
+    '6':  { bg: '#7A4796', fg: '#fff' },
+    '7':  { bg: '#FCBF00', fg: '#000' },
+    '8':  { bg: '#5D2082', fg: '#fff' },
+    '9':  { bg: '#00A13F', fg: '#fff' },
+    '10': { bg: '#FECB42', fg: '#000' },
+    '11': { bg: '#B8A2CE', fg: '#fff' },
+    '12': { bg: '#E3000B', fg: '#fff' },
+    '13': { bg: '#996A2F', fg: '#fff' },
+    '14': { bg: '#7E4C00', fg: '#fff' },
+    '15': { bg: '#CEB08D', fg: '#fff' },
+    '16': { bg: '#74BC75', fg: '#fff' },
+    '17': { bg: '#009EBF', fg: '#fff' },
+    '18': { bg: '#EA4D33', fg: '#fff' },
+    '19': { bg: '#EF7C00', fg: '#fff' },
+    '20': { bg: '#C44F97', fg: '#fff' },
+    '21': { bg: '#A2CBEE', fg: '#fff' },
+    '23': { bg: '#A0C753', fg: '#fff' },
+    '24': { bg: '#B48C5C', fg: '#fff' },
+    '25': { bg: '#B7037F', fg: '#fff' },
+    '26': { bg: '#0088AD', fg: '#fff' },
+    '27': { bg: '#93AE31', fg: '#fff' },
+    '29': { bg: '#29AA50', fg: '#fff' },
+    '30': { bg: '#0085CD', fg: '#fff' },
+    '33': { bg: '#37A7DF', fg: '#fff' },
+    '35': { bg: '#86BFE9', fg: '#fff' },
+    '36': { bg: '#D181B5', fg: '#fff' },
+    '40': { bg: '#B8A1CE', fg: '#fff' },
+    '41': { bg: '#F6AF94', fg: '#fff' },
+    '42': { bg: '#9A6B31', fg: '#fff' }
+  };
+
+  // Fallback-Farben für nicht-Tram-Linien
+  const CAT_COLORS = {
+    bus:    { bg: '#07A1E2', fg: '#fff' },   // VBZ-Blau
+    tram:   { bg: '#212529', fg: '#fff' },   // unbekannte Tramlinie
+    s:      { bg: '#009E3D', fg: '#fff' },   // S-Bahn (unbekannte Liniennummer)
+    ic:     { bg: '#EB0000', fg: '#fff' },   // IC/IR/Fernverkehr
+    night:  { bg: '#000000', fg: '#FFFF00' },// Nachtnetz: schwarz mit gelb
+    other:  { bg: '#6c757d', fg: '#fff' }
+  };
+
+  function badgeStyle(dep) {
+    const cat = (dep.category || '').toUpperCase().trim();
+    const rawNum = (dep.number || '').trim().toUpperCase();
+    const isTram = (cat === 'T' || cat === 'TRAM' || cat === 'NFT');
+    const isBus  = (cat === 'B' || cat === 'BUS'  || cat === 'NFB');
+
+    if (isTram && TRAM_COLORS[rawNum]) return TRAM_COLORS[rawNum];
+    if (isTram) return CAT_COLORS.tram;
+    if (isBus)  return CAT_COLORS.bus;
+
+    // Nachtlinien (SN) — Kategorie kann 'SN' oder 'S' mit Nummer 'N5' sein
+    const isNight = (cat === 'SN') || (cat.startsWith('S') && rawNum.startsWith('N'));
+    if (isNight) return CAT_COLORS.night;
+
+    // Reguläre S-Bahn — Liniennummer extrahieren (z. B. "5", "S5")
+    if (cat.startsWith('S')) {
+      const sNum = rawNum.replace(/^S/, '');
+      if (S_COLORS[sNum]) return S_COLORS[sNum];
+      return CAT_COLORS.s;
+    }
+    if (['IC','IR','ICE','EC','RE','TGV','NJ','EN','PE'].includes(cat)) return CAT_COLORS.ic;
+    return CAT_COLORS.other;
+  }
 
   const REFRESH_MS = 30_000;
   const STALE_AFTER_MS = 120_000;
@@ -269,17 +411,6 @@
   function escapeHtml(s) {
     return String(s ?? '').replace(/[&<>"']/g, c =>
       ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-  }
-
-  function badgeClass(cat) {
-    if (!cat) return '';
-    const c = cat.toUpperCase().trim();
-    if (c === 'B' || c === 'BUS' || c === 'NFB') return 'b-bus';
-    if (c === 'T' || c === 'TRAM' || c === 'NFT') return 'b-tram';
-    if (c.startsWith('S') && c !== 'SN') return 'b-s';
-    if (c === 'SN') return 'b-night';
-    if (['IC','IR','ICE','EC','RE','TGV','NJ','EN','PE'].includes(c)) return 'b-ic';
-    return '';
   }
 
   function lineLabel(dep) {
@@ -454,10 +585,12 @@
 
         const platform = dep.stop.platform ? 'Kante ' + dep.stop.platform : '';
         const dest = stripCity(dep.to || '');
-        const cls = badgeClass(dep.category);
+        const bs = badgeStyle(dep);
+        const badgeStyleStr = 'background:' + bs.bg + ';color:' + bs.fg;
 
         html += '<tr>';
-        html += '<td><span class="badge ' + cls + '">' + escapeHtml(lineLabel(dep)) + '</span></td>';
+        html += '<td><span class="badge" style="' + badgeStyleStr + '">'
+              + escapeHtml(lineLabel(dep)) + '</span></td>';
         html += '<td><div class="dest">' + escapeHtml(dest)
               + (platform ? '<span class="meta">' + escapeHtml(platform) + '</span>' : '')
               + '</div></td>';
@@ -474,7 +607,7 @@
   }
 
   // ============================================================
-  //  Status: per-Block + global
+  //  Status
   // ============================================================
   function updateStatus() {
     const now = new Date();
