@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Abfahrten — Wollishofen</title>
+<style>
+  :root {
+    --bg: #07090c;
+    --panel: #0e1116;
+    --panel-2: #161a21;
+    --line: #1f242c;
+    --header-bg: #0079c2;   /* ZVV-Blau */
+    --header-bg-2: #00568a;
+    --text: #ffffff;
+    --text-dim: #8a93a0;
+    --text-mid: #c4c9d2;
+    --accent: #ffcc00;
+    --warn: #ff4d4d;
+    --ok: #58d672;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, var(--header-bg) 0%, var(--header-bg-2) 100%);
+    padding: 14px 22px;
+    border-bottom: 3px solid #002e4d;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+  }
+  .brand { display: flex; align-items: baseline; gap: 14px; }
+  .brand .pin {
+    display: inline-block;
+    width: 6px; height: 26px;
+    background: var(--accent);
+    border-radius: 1px;
+    transform: translateY(4px);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+  }
+  .station {
+    font-size: 22px; font-weight: 700; letter-spacing: 0.3px;
+    color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+  }
+  .sub {
+    color: rgba(255,255,255,0.7);
+    font-size: 12px; text-transform: uppercase;
+    letter-spacing: 2px; margin-left: 4px;
+  }
+  .clock {
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 24px; font-weight: 500;
+    color: #fff; letter-spacing: 1px;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+  }
+
+  /* ---------- Block ---------- */
+  .block {
+    background: var(--panel);
+    border-bottom: 1px solid #000;
+    transition: opacity 0.4s, filter 0.4s;
+  }
+  .block + .block { border-top: 3px solid var(--header-bg-2); }
+  .block-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 18px;
+    background: linear-gradient(180deg, #1a2030 0%, #131720 100%);
+    border-bottom: 1px solid var(--line);
+  }
+  .block-title {
+    font-size: 16px; font-weight: 700; letter-spacing: 0.4px;
+    color: #fff; display: flex; align-items: center; gap: 10px;
+  }
+  .block-title::before {
+    content: ''; width: 4px; height: 16px;
+    background: var(--accent); border-radius: 1px; display: inline-block;
+  }
+  .block-meta {
+    color: var(--text-dim); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1.6px;
+  }
+  .block.is-stale .block-content {
+    opacity: 0.5; filter: saturate(0.5);
+  }
+  .block.is-stale .block-meta { color: var(--warn); }
+
+  /* ---------- Grid 2 Richtungen ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px; background: #000;
+  }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .direction { background: var(--panel); }
+
+  .dir-head {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel-2);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .dir-head .arrow { color: var(--accent); font-size: 16px; line-height: 1; }
+  .dir-head .label {
+    color: var(--text-dim); font-size: 10px;
+    letter-spacing: 1.6px; text-transform: uppercase;
+  }
+  .dir-head .name {
+    color: var(--text); font-size: 14px; font-weight: 700; margin-left: 2px;
+  }
+
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #141821;
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .col-line { width: 70px; }
+  .col-time { width: 88px; text-align: right; }
+  .col-cd   { width: 56px; text-align: right; }
+
+  .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 50px; padding: 5px 8px; border-radius: 3px;
+    font-weight: 700; font-size: 13px;
+    background: #ffffff; color: #000;
+    letter-spacing: 0.3px; white-space: nowrap;
+  }
+  .b-bus   { background: #0079c2; color: #fff; }
+  .b-tram  { background: #ffffff; color: #000; }
+  .b-s     { background: #009b3a; color: #fff; }
+  .b-ic    { background: #eb0000; color: #fff; }
+  .b-night { background: #1c1f4a; color: #fff; }
+
+  .dest {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .dest .meta {
+    display: block; color: var(--text-dim);
+    font-size: 11px; font-weight: 400; margin-top: 2px; letter-spacing: 0.4px;
+  }
+
+  .time {
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 18px; color: var(--accent); font-weight: 500;
+  }
+  .time.cancelled { color: var(--text-dim); text-decoration: line-through; }
+  .delay {
+    display: block; color: var(--warn);
+    font-size: 12px; font-weight: 700; margin-top: 2px;
+  }
+
+  .cd {
+    color: var(--text-mid); font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  }
+  .cd.now  { color: var(--ok); font-weight: 700; }
+  .cd.soon { color: var(--accent); font-weight: 700; }
+
+  .empty, .error {
+    padding: 22px; text-align: center;
+    color: var(--text-dim); font-size: 13px;
+  }
+  .error { color: #ff8a8a; background: #1a0606; }
+
+  footer {
+    padding: 10px 18px; text-align: center;
+    color: var(--text-dim); font-size: 11px;
+    background: #050505; letter-spacing: 0.5px;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  .pulse {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--ok); border-radius: 50%;
+    margin-right: 6px; animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  body.stale .pulse { background: var(--warn); animation: pulse 0.8s infinite; }
+  body.stale footer { background: #1a0606; color: #ff8a8a; }
+  body.stale .clock { color: #ffd0d0; }
+  body.stale header { border-bottom-color: var(--warn); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="pin"></span>
+    <div>
+      <div class="station">Wollishofen</div>
+      <div class="sub">Echtzeit-Abfahrten</div>
+    </div>
+  </div>
+  <div class="clock" id="clock">--:--:--</div>
+</header>
+
+<main id="blocks"></main>
+
+<footer>
+  <span class="pulse"></span>
+  <span id="updated">Verbinde …</span>
+</footer>
+
+<script>
+  // ============================================================
+  //  KONFIGURATION — pro Block eine Haltestelle
+  // ============================================================
+  const BLOCKS = [
+    {
+      id: 'rengger',
+      title: 'Zürich, Renggerstrasse',
+      meta: 'Bus',
+      station: 'Zürich, Renggerstrasse',
+      rows: 6
+      // default getDirection = nächster Halt nach unserer Station
+    },
+    {
+      id: 'wollishofen',
+      title: 'Zürich Wollishofen',
+      meta: 'SBB / S-Bahn',
+      station: 'Zürich Wollishofen',
+      rows: 6,
+      // S-Bahn Richtungen: über Zürich HB oder Richtung Süden (Thalwil)
+      getDirection(dep) {
+        const stops = dep.passList || [];
+        if (stops.some(s => s.station && s.station.name === 'Zürich HB')) {
+          return 'Zürich HB';
+        }
+        return 'Thalwil / Süden';
+      },
+      directionOrder: ['Zürich HB', 'Thalwil / Süden']
+    }
+  ];
+
+  const REFRESH_MS = 30_000;
+  const STALE_AFTER_MS = 120_000;
+  const RETRY_BASE_MS = 3_000;
+  const RETRY_MAX_MS = 60_000;
+  const REQUEST_TIMEOUT_MS = 8_000;
+
+  // ============================================================
+  //  Helpers
+  // ============================================================
+  const pad = n => (n < 10 ? '0' : '') + n;
+  const fmtTime    = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
+  const fmtTimeSec = d => pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  const stripCity  = s => String(s || '').replace(/^Zürich,\s*/i, '');
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+  }
+
+  function badgeClass(cat) {
+    if (!cat) return '';
+    const c = cat.toUpperCase().trim();
+    if (c === 'B' || c === 'BUS' || c === 'NFB') return 'b-bus';
+    if (c === 'T' || c === 'TRAM' || c === 'NFT') return 'b-tram';
+    if (c.startsWith('S') && c !== 'SN') return 'b-s';
+    if (c === 'SN') return 'b-night';
+    if (['IC','IR','ICE','EC','RE','TGV','NJ','EN','PE'].includes(c)) return 'b-ic';
+    return '';
+  }
+
+  function lineLabel(dep) {
+    const cat = (dep.category || '').trim();
+    const num = (dep.number || '').trim();
+    if (cat && num) return cat + ' ' + num;
+    return dep.name || cat || num || '?';
+  }
+
+  function fmtAge(ms) {
+    const s = Math.round(ms / 1000);
+    if (s < 60) return s + ' Sek';
+    const m = Math.round(s / 60);
+    if (m < 60) return m + ' Min';
+    return Math.round(m / 60) + ' Std';
+  }
+
+  function defaultGetDirection(dep) {
+    const next = dep.passList && dep.passList[1] && dep.passList[1].station
+      ? dep.passList[1].station.name : null;
+    return next || ('→ ' + (dep.to || 'Unbekannt'));
+  }
+
+  // ============================================================
+  //  State pro Block
+  // ============================================================
+  const state = BLOCKS.map(() => ({
+    consecutiveFailures: 0,
+    lastSuccessAt: null,
+    lastError: null,
+    nextLoadTimer: null
+  }));
+
+  // ============================================================
+  //  Skeleton
+  // ============================================================
+  function buildSkeleton() {
+    const root = document.getElementById('blocks');
+    root.innerHTML = '';
+    for (const b of BLOCKS) {
+      const sec = document.createElement('section');
+      sec.className = 'block';
+      sec.id = 'block-' + b.id;
+      sec.innerHTML =
+        '<div class="block-head">'
+          + '<div class="block-title">' + escapeHtml(b.title) + '</div>'
+          + '<div class="block-meta">' + escapeHtml(b.meta || '') + '</div>'
+        + '</div>'
+        + '<div class="block-content" id="content-' + b.id + '">'
+          + '<div class="empty">Lade Abfahrten …</div>'
+        + '</div>';
+      root.appendChild(sec);
+    }
+  }
+
+  // ============================================================
+  //  Laden mit Retry/Backoff
+  // ============================================================
+  function scheduleNext(idx, ms) {
+    const st = state[idx];
+    if (st.nextLoadTimer) clearTimeout(st.nextLoadTimer);
+    st.nextLoadTimer = setTimeout(() => loadBlock(idx), ms);
+  }
+
+  async function loadBlock(idx) {
+    const block = BLOCKS[idx];
+    const st = state[idx];
+    try {
+      const url = 'https://transport.opendata.ch/v1/stationboard'
+        + '?station=' + encodeURIComponent(block.station)
+        + '&limit=40';
+
+      const ctrl = new AbortController();
+      const to = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+      let res;
+      try {
+        res = await fetch(url, { signal: ctrl.signal });
+      } finally {
+        clearTimeout(to);
+      }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+
+      const getDir = block.getDirection || defaultGetDirection;
+      const groups = new Map();
+      for (const dep of (data.stationboard || [])) {
+        const key = getDir(dep);
+        if (!key) continue;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(dep);
+      }
+
+      renderBlock(idx, groups);
+
+      st.consecutiveFailures = 0;
+      st.lastError = null;
+      st.lastSuccessAt = new Date();
+      updateStatus();
+      scheduleNext(idx, REFRESH_MS);
+    } catch (e) {
+      st.consecutiveFailures++;
+      st.lastError = e.name === 'AbortError' ? 'Timeout' : (e.message || String(e));
+      const backoff = Math.min(
+        RETRY_MAX_MS,
+        RETRY_BASE_MS * Math.pow(2, st.consecutiveFailures - 1)
+      );
+      updateStatus();
+      scheduleNext(idx, backoff);
+      console.warn('[' + block.id + '] Fehler #' + st.consecutiveFailures
+        + ': ' + st.lastError + ' – Retry in ' + backoff + 'ms');
+    }
+  }
+
+  // ============================================================
+  //  Rendering
+  // ============================================================
+  function renderBlock(idx, groups) {
+    const block = BLOCKS[idx];
+    const container = document.getElementById('content-' + block.id);
+
+    if (!groups.size) {
+      container.innerHTML = '<div class="empty">Keine Abfahrten gefunden.</div>';
+      return;
+    }
+
+    let entries;
+    if (block.directionOrder && block.directionOrder.length) {
+      const used = new Set();
+      entries = [];
+      for (const k of block.directionOrder) {
+        if (groups.has(k)) {
+          entries.push([k, groups.get(k)]);
+          used.add(k);
+        }
+      }
+      const rest = [...groups.entries()]
+        .filter(([k]) => !used.has(k))
+        .sort((a, b) => b[1].length - a[1].length);
+      entries = entries.concat(rest);
+    } else {
+      entries = [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+    }
+    entries = entries.slice(0, 2);
+
+    const now = new Date();
+    let html = '<div class="grid">';
+
+    for (const [dirName, deps] of entries) {
+      html += '<div class="direction">';
+      html += '<div class="dir-head">'
+            + '<span class="arrow">→</span>'
+            + '<span class="label">Richtung</span>'
+            + '<span class="name">' + escapeHtml(stripCity(dirName)) + '</span>'
+            + '</div>';
+      html += '<table><colgroup>'
+            + '<col class="col-line"><col>'
+            + '<col class="col-time"><col class="col-cd">'
+            + '</colgroup><tbody>';
+
+      for (const dep of deps.slice(0, block.rows || 6)) {
+        const sched = new Date(dep.stop.departure);
+        const progStr = dep.stop.prognosis && dep.stop.prognosis.departure;
+        const prog = progStr ? new Date(progStr) : null;
+        const delayMin = prog ? Math.round((prog - sched) / 60000) : 0;
+        const effective = prog || sched;
+        const minsAway = Math.round((effective - now) / 60000);
+
+        let cdHtml;
+        if (minsAway <= 0) cdHtml = '<span class="cd now">jetzt</span>';
+        else if (minsAway < 5) cdHtml = '<span class="cd soon">' + minsAway + '′</span>';
+        else cdHtml = '<span class="cd">' + minsAway + '′</span>';
+
+        const platform = dep.stop.platform ? 'Kante ' + dep.stop.platform : '';
+        const dest = stripCity(dep.to || '');
+        const cls = badgeClass(dep.category);
+
+        html += '<tr>';
+        html += '<td><span class="badge ' + cls + '">' + escapeHtml(lineLabel(dep)) + '</span></td>';
+        html += '<td><div class="dest">' + escapeHtml(dest)
+              + (platform ? '<span class="meta">' + escapeHtml(platform) + '</span>' : '')
+              + '</div></td>';
+        html += '<td class="time">' + fmtTime(sched)
+              + (delayMin > 0 ? '<span class="delay">+' + delayMin + '′</span>' : '')
+              + '</td>';
+        html += '<td>' + cdHtml + '</td>';
+        html += '</tr>';
+      }
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  // ============================================================
+  //  Status: per-Block + global
+  // ============================================================
+  function updateStatus() {
+    const now = new Date();
+    const updated = document.getElementById('updated');
+
+    let staleCount = 0;
+    let neverLoaded = 0;
+    let oldestSuccess = null;
+    let firstError = null;
+    let anyFailing = false;
+
+    BLOCKS.forEach((b, idx) => {
+      const st = state[idx];
+      const sec = document.getElementById('block-' + b.id);
+      const ageMs = st.lastSuccessAt ? (now - st.lastSuccessAt) : Infinity;
+      const isStale = ageMs > STALE_AFTER_MS;
+
+      if (sec) sec.classList.toggle('is-stale', isStale && st.lastSuccessAt !== null);
+      if (st.lastSuccessAt === null) neverLoaded++;
+      if (isStale) staleCount++;
+      if (st.consecutiveFailures > 0) {
+        anyFailing = true;
+        if (!firstError) firstError = b.title + ': ' + st.lastError;
+      }
+      if (st.lastSuccessAt && (oldestSuccess === null || st.lastSuccessAt < oldestSuccess)) {
+        oldestSuccess = st.lastSuccessAt;
+      }
+    });
+
+    const globalStale = (staleCount === BLOCKS.length)
+                     || (neverLoaded === BLOCKS.length && anyFailing);
+    document.body.classList.toggle('stale', globalStale);
+
+    if (neverLoaded === BLOCKS.length) {
+      updated.textContent = anyFailing
+        ? 'Verbindung fehlgeschlagen (' + firstError + ') — versuche erneut …'
+        : 'Verbinde …';
+      return;
+    }
+
+    const stamp = oldestSuccess ? fmtTime(oldestSuccess) : '—';
+    if (globalStale) {
+      const ageMs = oldestSuccess ? (now - oldestSuccess) : 0;
+      updated.textContent = 'Verbindung unterbrochen — älteste Daten von '
+        + stamp + ' (vor ' + fmtAge(ageMs) + ')'
+        + (firstError ? ' · ' + firstError : '');
+    } else if (staleCount > 0) {
+      updated.textContent = staleCount + ' von ' + BLOCKS.length
+        + ' Block veraltet · älteste Daten: ' + stamp;
+    } else if (anyFailing) {
+      updated.textContent = 'Letzter Sync ' + stamp
+        + ' · Verbindungsproblem, neuer Versuch läuft …';
+    } else {
+      updated.textContent = 'Letzter Sync ' + stamp
+        + ' · Daten: transport.opendata.ch';
+    }
+  }
+
+  function tick() {
+    document.getElementById('clock').textContent = fmtTimeSec(new Date());
+    updateStatus();
+  }
+
+  // ============================================================
+  //  Boot
+  // ============================================================
+  buildSkeleton();
+  tick();
+  BLOCKS.forEach((_, idx) => loadBlock(idx));
+  setInterval(tick, 1000);
+</script>
+
+</body>
+</html>
