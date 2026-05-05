@@ -53,7 +53,8 @@
     justify-content: space-between;
     background: var(--panel);
     padding: 14px 22px;
-    margin-bottom: 16px;
+    margin: 0 auto 16px;
+    max-width: 1400px;
     border-bottom: 1px solid var(--panel-2);
     box-shadow: 0 2px 4px rgba(0,0,0,0.08);
   }
@@ -85,6 +86,8 @@
   /* ---------- Block ---------- */
   main {
     padding: 12px;
+    margin: 0 auto;
+    max-width: 1400px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -128,7 +131,7 @@
     gap: 1px;
     background: var(--line);
   }
-  @media (max-width: 760px) {
+  @media (max-width: 860px) {
     .grid { grid-template-columns: 1fr; }
   }
   .direction { background: var(--panel); }
@@ -217,6 +220,8 @@
 
   footer {
     padding: 10px 18px; text-align: center;
+    margin: 0 auto;
+    max-width: 1400px;
     color: var(--text-dim); font-size: 11px;
     background: var(--panel);
     border-top: 1px solid var(--line);
@@ -234,8 +239,8 @@
   /* Globaler Stale-Zustand */
   body.stale .pulse { background: var(--warn); animation: pulse 0.8s infinite; }
   body.stale footer { background: #fdecec; color: var(--warn); }
-  body.stale .clock { color: #ffe5e5; }
-  body.stale header { box-shadow: 0 0 0 3px var(--warn) inset; }
+  body.stale .clock { color: var(--warn); }
+  body.stale header { background: #fdecec; box-shadow: 0 0 0 3px var(--warn) inset; }
 </style>
 </head>
 <body>
